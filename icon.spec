@@ -1,5 +1,5 @@
 #
-# _without_x	- without X11 graphics support
+%bcond_without	x	# without X11 graphics support
 #
 Summary:	Icon programming language
 Summary(pl):	Jêzyk programowania Icon
@@ -14,7 +14,7 @@ Source0:	http://www.cs.arizona.edu/icon/ftp/packages/unix/%{name}.v%{sver}src.tg
 Patch0:		%{name}-system-Xpm.patch
 Patch1:		%{name}-paths.patch
 URL:		http://www.cs.arizona.edu/icon/
-%{!?_without_x:BuildRequires:	XFree86-devel}
+%{?with_x:BuildRequires:	XFree86-devel}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -36,7 +36,9 @@ poziomie.
 %patch -p1
 
 %build
-%{__make} %{!?_without_x:X-}Configure name=linux
+%{__make} %{?with_x:X-}Configure \
+	name=linux
+
 %{__make} \
 	CC="%{__cc}" \
 	CFLAGS="%{rpmcflags}"
