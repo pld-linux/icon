@@ -1,0 +1,11 @@
+--- icon.v941src/ipl/BuildBin.orig	Sat Jan 26 01:25:09 2002
++++ icon.v941src/ipl/BuildBin	Sat Dec 28 14:43:21 2002
+@@ -9,7 +9,7 @@
+ 
+ #  Standard path embedded in Icon binaries
+ #  (it shouldn't be used, but this is better than embedding a personal path)
+-STDPATH=/opt/icon/bin/iconx
++STDPATH=/usr/bin/iconx
+ 
+ #  Set paths
+ TOP=`cd ..; pwd`

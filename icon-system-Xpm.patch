@@ -1,0 +1,736 @@
+--- icon.v941src/src/h/sys.h.orig	Fri Jan 18 23:17:26 2002
++++ icon.v941src/src/h/sys.h	Sat Dec 28 13:38:42 2002
+@@ -165,7 +165,7 @@
+       #include "decw$include:Xatom.h"
+ 
+       #ifdef HaveXpmFormat
+-         #include "../xpm/xpm.h"
++         #include <X11/xpm.h>
+       #endif				/* HaveXpmFormat */
+ 
+       #undef UNIX
+@@ -174,7 +174,7 @@
+       #undef VMS
+ 
+       #ifdef HaveXpmFormat
+-         #include "../xpm/xpm.h"
++         #include <X11/xpm.h>
+       #else				/* HaveXpmFormat */
+          #include <X11/Xlib.h>
+       #endif				/* HaveXpmFormat */
+--- icon.v941src/src/common/Makefile.orig	Wed Dec 12 19:28:10 2001
++++ icon.v941src/src/common/Makefile	Sat Dec 28 13:41:09 2002
+@@ -19,8 +19,6 @@
+ 		-if [ "x$(XL)" != "x" ]; then $(MAKE) xpm; fi
+ 
+ xpm:
+-		cd ../xpm; $(MAKE) libXpm.a
+-		cp ../xpm/libXpm.a ../../bin
+ 
+ $(OBJS): ../h/define.h ../h/arch.h ../h/config.h ../h/cstructs.h ../h/mproto.h \
+ 	  ../h/typedefs.h ../h/proto.h ../h/cpuconf.h
+--- icon.v941src/src/common/xwindow.c.orig	Wed Dec 12 19:28:10 2001
++++ icon.v941src/src/common/xwindow.c	Sat Dec 28 13:44:34 2002
+@@ -17,7 +17,7 @@
+ #if VMS
+    #undef UNIX
+    #ifdef XpmFormat
+-      #include "../xpm/xpm.h"
++      #include <X11/xpm.h>
+    #endif				/* XpmFormat */
+    #include "decw$include:Xlib.h"
+    #include "decw$include:Xutil.h"
+@@ -28,7 +28,7 @@
+    #define UNIX 0
+ #else					/* VMS */
+    #ifdef XpmFormat
+-      #include "../xpm/xpm.h"
++      #include <X11/xpm.h>
+    #else				/* XpmFormat */
+       #include <X11/Xlib.h>
+       #include <X11/Xutil.h>
+--- icon.v941src/config/unix/setup.sh.orig	Mon Mar  4 22:32:55 2002
++++ icon.v941src/config/unix/setup.sh	Sat Dec 28 13:47:44 2002
+@@ -12,7 +12,7 @@
+ 
+ # check parameters
+ case "$GPX" in
+-   Graphics)	XL='-L../../bin -lXpm $(XLIBS)';;
++   Graphics)	XL='-lXpm $(XLIBS)';;
+    NoGraphics)	XL= ;;
+    *)		echo "$USAGE" 1>&2; exit 1;;
+ esac
+--- icon.v941src/src/iconc/ccomp.c.orig	Fri Jan 18 23:17:26 2002
++++ icon.v941src/src/iconc/ccomp.c	Sat Dec 28 13:51:12 2002
+@@ -154,9 +154,7 @@
+ #if UNIX
+ 
+ #ifdef Graphics
+-   lib_sz += strlen(" -L") +
+-             strlen(refpath) +
+-	     strlen(" -lXpm ");
++   lib_sz += strlen(" -lXpm ");
+    lib_sz += strlen(ICONC_XLIB);
+ #endif						/* Graphics */
+ 
+@@ -188,9 +186,7 @@
+       }
+ 
+ #ifdef Graphics
+-   strcpy(s," -L");
+-   strcat(s, refpath);
+-   strcat(s," -lXpm ");
++   strcpy(s," -lXpm ");
+    strcat(s, ICONC_XLIB);
+    s += strlen(s);
+ #endif						/* Graphics */
+--- icon.v941src/src/runtime/errmsg.r.orig	Sun Jul 30 04:42:31 2000
++++ icon.v941src/src/runtime/errmsg.r	Sat Dec 28 14:17:43 2002
+@@ -7,7 +7,7 @@
+ HAB HInterpAnchorBlock;
+ #endif					/* PresentationManager */
+ 
+-#if AMIGA && __SASC
++#if defined(AMIGA) && __SASC
+ extern void PostClip(char *file, int line, int number, char *text);
+ extern void CallARexx(char *script);
+ #endif					/* AMIGA && __SASC */
+@@ -97,7 +97,7 @@
+    if (dodump)
+       abort();
+ 
+-#if AMIGA && __SASC
++#if defined(AMIGA) && __SASC
+    PostClip(findfile(ipc.opnd), findline(ipc.opnd), k_errornumber, k_errortext);
+    CallARexx(IconxRexx);
+ #endif					/* AMIGA && __SASC */
+--- icon.v941src/src/runtime/fmath.r.orig	Wed Dec 12 19:28:14 2001
++++ icon.v941src/src/runtime/fmath.r	Sat Dec 28 14:18:27 2002
+@@ -67,7 +67,7 @@
+       runerr(102, y)
+    inline {
+ 
+-#if AMIGA
++#if defined(AMIGA)
+ #if AZTEC_C
+    #define atan2(x,y) atan(x/y)
+ #endif					/* AZTEC_C */
+--- icon.v941src/src/runtime/fsys.r.orig	Fri Jan 18 23:17:27 2002
++++ icon.v941src/src/runtime/fsys.r	Sat Dec 28 14:19:44 2002
+@@ -18,7 +18,7 @@
+ Deliberate Syntax Error
+ #endif					/* PORT */
+ 
+-#if AMIGA
++#if defined(AMIGA)
+ #if __SASC
+    /* Undefine macros from fcntl.h and stdlib.h that collide with
+       function names in this module. */
+@@ -189,7 +189,7 @@
+       else
+ #endif					/* ReadDirectory */
+ 
+-#if AMIGA || ARM || OS2 || UNIX || VMS
++#if defined(AMIGA) || ARM || OS2 || UNIX || VMS
+       /*
+        * Close pipe if pipes are supported.
+        */
+@@ -310,7 +310,7 @@
+ Deliberate Syntax Error
+ #endif					/* PORT */
+ 
+-#if AMIGA || MACINTOSH || MSDOS || OS2
++#if defined(AMIGA) || MACINTOSH || MSDOS || OS2
+    /* nothing is needed */
+ #endif					/* AMIGA || ... */
+ 
+@@ -372,7 +372,7 @@
+ 	       status |= Fs_Untrans;
+ 	       continue;
+ 
+-#if AMIGA || ARM || OS2 || UNIX || VMS
++#if defined(AMIGA) || ARM || OS2 || UNIX || VMS
+ 	    case 'p':
+ 	    case 'P':
+ 	       status |= Fs_Pipe;
+@@ -425,7 +425,7 @@
+ Deliberate Syntax Error
+ #endif					/* PORT */
+ 
+-#if AMIGA || ARM || UNIX || VMS
++#if defined(AMIGA) || ARM || UNIX || VMS
+       if ((status & (Fs_Read|Fs_Write)) == (Fs_Read|Fs_Write))
+ 	 mode[1] = '+';
+ #endif					/* AMIGA || ARM || UNIX || VMS */
+@@ -488,7 +488,7 @@
+ 	 } else
+ #endif					/* Graphics */
+ 
+-#if AMIGA || ARM || OS2 || UNIX || VMS
++#if defined(AMIGA) || ARM || OS2 || UNIX || VMS
+       if (status & Fs_Pipe) {
+ 	 if (status != (Fs_Read|Fs_Pipe) && status != (Fs_Write|Fs_Pipe))
+ 	    runerr(209, spec);
+@@ -791,7 +791,7 @@
+       Protect(StrLoc(s) = alcstr(NULL, i), runerr(0));
+       StrLen(s) = 0;
+ 
+-#if AMIGA
++#if defined(AMIGA)
+ #if LATTICE
+       /*
+        * The following code is special for Lattice 4.0 -- it was different
+@@ -1413,7 +1413,7 @@
+       runerr(121);
+ #endif					/* ARM || MACINTOSH ... */
+ 
+-#if AMIGA || MSDOS || OS2 || UNIX || VMS
++#if defined(AMIGA) || MSDOS || OS2 || UNIX || VMS
+    #if NT
+       int nt_chdir(char *);
+       if (nt_chdir(s) != 0)
+--- icon.v941src/src/runtime/init.r.orig	Wed Jan 30 21:48:23 2002
++++ icon.v941src/src/runtime/init.r	Sat Dec 28 14:20:52 2002
+@@ -35,7 +35,7 @@
+ Deliberate Syntax Error
+ #endif					/* PORT */
+ 
+-#if AMIGA
++#if defined(AMIGA)
+ int chkbreak;				/* if nonzero, check for ^C */
+   /* These override environment variables if set from ToolTypes. */
+ uword WBstrsize = 0;
+@@ -607,7 +607,7 @@
+ Deliberate Syntax Error
+ #endif					/* PORT */
+ 
+-#if AMIGA
++#if defined(AMIGA)
+    signal(SIGFPE, fpetrap);
+ #endif					/* AMIGA */
+ 
+@@ -922,7 +922,7 @@
+ Deliberate Syntax Error
+ #endif					/* PORT */
+ 
+-#if AMIGA
++#if defined(AMIGA)
+    /* not done */
+ #endif					/* AMIGA */
+ 
+@@ -1009,7 +1009,7 @@
+ Deliberate Syntax Error
+ #endif					/* PORT */
+ 
+-#if AMIGA
++#if defined(AMIGA)
+    if ((p = getenv("CHECKBREAK")) != NULL)
+       chkbreak++;
+    if (WBstrsize != 0 && WBstrsize <= MaxBlock) ssize = WBstrsize;
+@@ -1037,7 +1037,7 @@
+ Deliberate Syntax Error
+ #endif					/* PORT */
+ 
+-#if AMIGA || MACINTOSH
++#if defined(AMIGA) || MACINTOSH
+    /* can't handle */
+ #endif					/* AMIGA || ... */
+ 
+--- icon.v941src/src/runtime/interp.r.orig	Fri Jan 18 23:17:28 2002
++++ icon.v941src/src/runtime/interp.r	Sat Dec 28 14:21:25 2002
+@@ -27,7 +27,7 @@
+ Deliberate Syntax Error
+ #endif					/* PORT */
+ 
+-#if AMIGA
++#if defined(AMIGA)
+ #if LATTICE
+ extern int chkbreak;
+ #endif					/* LATTICE */
+@@ -191,7 +191,7 @@
+ Deliberate Syntax Error
+ #endif					/* PORT */
+ 
+-#if AMIGA || ARM || MACINTOSH || UNIX || VMS
++#if defined(AMIGA) || ARM || MACINTOSH || UNIX || VMS
+ #define PushAVal(x) PushVal(x)
+ #endif					/* AMIGA || ARM || ... */
+ 
+@@ -410,7 +410,7 @@
+ Deliberate Syntax Error
+ #endif					/* PORT */
+ 
+-#if AMIGA
++#if defined(AMIGA)
+ #if LATTICE
+       ExInterp;
+       if (chkbreak > 0)
+@@ -1812,7 +1812,7 @@
+ Deliberate Syntax Error
+ #endif					/* PORT */
+ 
+-#if AMIGA || MACINTOSH || VMS
++#if defined(AMIGA) || MACINTOSH || VMS
+    /* not included */
+ #endif					/* AMIGA || ... */
+ 
+--- icon.v941src/src/runtime/rlocal.r.orig	Fri Jan 18 23:17:28 2002
++++ icon.v941src/src/runtime/rlocal.r	Sat Dec 28 14:22:07 2002
+@@ -24,7 +24,7 @@
+ 
+ /*********************************** AMIGA ***********************************/
+ 
+-#if AMIGA
++#if defined(AMIGA)
+ #if LATTICE
+ long _STACK = 20000;
+ long _MNEED = 200000;	/* reserve space for allocation (may be too large) */
+--- icon.v941src/src/runtime/rmisc.r.orig	Fri Jan 18 23:17:28 2002
++++ icon.v941src/src/runtime/rmisc.r	Sat Dec 28 14:22:21 2002
+@@ -1569,7 +1569,7 @@
+ Deliberate Syntax Error
+ #endif					/* PORT */
+ 
+-#if AMIGA || MSDOS || OS2 || UNIX || VMS
++#if defined(AMIGA) || MSDOS || OS2 || UNIX || VMS
+    return (isascii(c) && isprint(c));
+ #endif					/* AMIGA || ... */
+ 
+--- icon.v941src/src/runtime/rsys.r.orig	Fri Jan 18 23:17:28 2002
++++ icon.v941src/src/runtime/rsys.r	Sat Dec 28 14:22:45 2002
+@@ -20,7 +20,7 @@
+ 
+    fd = fbp->fd;
+ 
+-#if AMIGA
++#if defined(AMIGA)
+ #if LATTICE
+    /* This code is special for Lattice 4.0.  It was different for
+     *  Lattice 3.10 and probably won't work for other C compilers.
+@@ -276,7 +276,7 @@
+    return Succeeded;
+ #endif					/* MACINTOSH */
+ 
+-#if AMIGA
++#if defined(AMIGA)
+ #if __SASC
+    Delay(n/20);
+    return Succeeded;
+--- icon.v941src/src/rtt/rttmain.c.orig	Fri Jan 18 23:17:27 2002
++++ icon.v941src/src/rtt/rttmain.c	Sat Dec 28 14:24:08 2002
+@@ -41,7 +41,7 @@
+ Deliberate Syntax Error
+ #endif					/* PORT */
+ 
+-#if AMIGA
++#if defined(AMIGA)
+ char *grttin_path = "/src/h/grttin.h";
+ char *rt_path = "/src/h/rt.h";
+ #endif					/* AMIGA */
+--- icon.v941src/src/preproc/files.c.orig	Fri Jan 18 23:17:26 2002
++++ icon.v941src/src/preproc/files.c	Sat Dec 28 14:25:18 2002
+@@ -13,7 +13,7 @@
+ Deliberate Syntax Error
+ #endif					/* PORT */
+ 
+-#if AMIGA
++#if defined(AMIGA)
+    /* Amiga paths are not converted.
+     *  Absolute paths have the form Volume:dir/dir/.../file
+     */
+@@ -77,7 +77,7 @@
+ Deliberate Syntax Error
+ #endif					/* PORT */
+ 
+-#if AMIGA
++#if defined(AMIGA)
+    /* nothing is needed */
+ #endif					/* AMIGA */
+ 
+@@ -268,7 +268,7 @@
+       }
+ #endif					/* VMS */
+ 
+-#if AMIGA
++#if defined(AMIGA)
+    static char *sysdir = "include:";
+ 
+    n_paths = 1;
+@@ -461,7 +461,7 @@
+ Deliberate Syntax Error
+ #endif					/* PORT */
+ 
+-#if AMIGA
++#if defined(AMIGA)
+    /* nothing is needed */
+ #endif					/* AMIGA */
+ 
+@@ -576,7 +576,7 @@
+ Deliberate Syntax Error
+ #endif					/* PORT */
+ 
+-#if AMIGA
++#if defined(AMIGA)
+    /* nothing is needed */
+ #endif					/* AMIGA */
+ 
+@@ -620,7 +620,7 @@
+       incl_search[n_paths - vmsi] = syspaths[vmsi-1];
+ #endif					/* VMS */
+ 
+-#if AMIGA
++#if defined(AMIGA)
+    incl_search[n_paths - 1] = sysdir;
+ #endif					/* AMIGA */
+ 
+--- icon.v941src/src/preproc/pinit.c.orig	Fri Jan 18 23:17:26 2002
++++ icon.v941src/src/preproc/pinit.c	Sat Dec 28 14:25:53 2002
+@@ -16,7 +16,7 @@
+ Deliberate Syntax Error
+ #endif					/* PORT */
+ 
+-#if AMIGA
++#if defined(AMIGA)
+    /* nothing is needed */
+ #endif					/* AMIGA */
+ 
+@@ -102,7 +102,7 @@
+ Deliberate Syntax Error
+ #endif					/* PORT */
+ 
+-#if AMIGA
++#if defined(AMIGA)
+    do_directive("#define AMIGA 1\n");
+ #if __SASC
+    do_directive("#define __SASC 1\n");
+@@ -551,7 +551,7 @@
+ Deliberate Syntax Error
+ #endif					/* PORT */
+ 
+-#if AMIGA
++#if defined(AMIGA)
+    /* nothing is needed */
+ #endif					/* AMIGA */
+ 
+--- icon.v941src/src/preproc/pmain.c.orig	Fri Jan 18 23:17:26 2002
++++ icon.v941src/src/preproc/pmain.c	Sat Dec 28 14:26:14 2002
+@@ -16,7 +16,7 @@
+ Deliberate Syntax Error
+ #endif					/* PORT */
+ 
+-#if AMIGA || MACINTOSH
++#if defined(AMIGA) || MACINTOSH
+ static char *ostr = "CPD:I:U:o:";
+ static char *options =
+    "[-C] [-P] [-Dname[=[text]]] [-Uname] [-Ipath] [-ofile] [files]";
+@@ -119,7 +119,7 @@
+ Deliberate Syntax Error
+ #endif					/* PORT */
+ 
+-#if AMIGA || MACINTOSH
++#if defined(AMIGA) || MACINTOSH
+    /* may need something */
+ Deliberate Syntax Error
+ #endif					/* AMIGA || ... */
+--- icon.v941src/src/icont/lcode.c.orig	Thu Mar 21 03:26:14 2002
++++ icon.v941src/src/icont/lcode.c	Sat Dec 28 14:27:06 2002
+@@ -47,7 +47,7 @@
+    static void	dumpblock	(char *addr,int count);
+ #endif					/* DeBugLinker */
+ 
+-#if AMIGA
++#if defined(AMIGA)
+    #include <fcntl.h>
+ #endif					/* AMIGA */
+ 
+--- icon.v941src/src/icont/link.c.orig	Thu Mar 21 03:26:14 2002
++++ icon.v941src/src/icont/link.c	Sat Dec 28 14:27:49 2002
+@@ -38,7 +38,7 @@
+    Deliberate Syntax Error
+ #endif					/* PORT */
+ 
+-#if AMIGA || MACINTOSH || VMS
++#if defined(AMIGA) || MACINTOSH || VMS
+    /* nothing to do */
+ #endif					/* AMIGA || ... */
+ 
+@@ -134,7 +134,7 @@
+    /*
+     * Open the output file.
+     */
+-   #if AMIGA && __SASC
++   #if defined(AMIGA) && __SASC
+       outfile = fopen(outname, ReadWriteBinary);
+    #else				/* AMIGA && __SASC */
+       outfile = fopen(outname, WriteBinary);
+@@ -150,7 +150,7 @@
+    Deliberate Syntax Error
+ #endif					/* PORT */
+ 
+-#if AMIGA || ARM || MACINTOSH || UNIX || VMS
++#if defined(AMIGA) || ARM || MACINTOSH || UNIX || VMS
+    /* nothing to do */
+ #endif					/* AMIGA || ARM || ... */
+ 
+@@ -284,7 +284,7 @@
+     */
+    {
+ 
+-#if AMIGA
++#if defined(AMIGA)
+    char script[2 * MaxPath + 200];
+    sprintf(script,
+    "/* ARexx header for direct execution of Icon code */\n\
+@@ -395,7 +395,7 @@
+    gentables();		/* Generate record, field, global, global names,
+ 			   static, and identifier tables. */
+ 
+-#if AMIGA
++#if defined(AMIGA)
+ #ifdef ShellHeader
+    /* The icode is enclosed in a deeply nested ARexx comment.
+       Here we close up the comment. */
+@@ -510,7 +510,7 @@
+ Deliberate Syntax Error
+ #endif					/* PORT */
+ 
+-#if AMIGA
++#if defined(AMIGA)
+    #if __SASC
+       if (fname != NULL) {
+       struct DiskObject *dob;
+--- icon.v941src/src/icont/tlocal.c.orig	Fri Jan 18 23:17:26 2002
++++ icon.v941src/src/icont/tlocal.c	Sat Dec 28 14:28:11 2002
+@@ -14,7 +14,7 @@
+ Deliberate Syntax Error
+ #endif					/* PORT */
+ 
+-#if AMIGA
++#if defined(AMIGA)
+ #if LATTICE || __SASC
+ unsigned long _STACK = 20000;   /*   MNEED ALSO, PLEASE */
+ #endif					/* LATTICE || __SASC */
+--- icon.v941src/src/iconc/ccomp.c.orig	Sat Dec 28 13:54:15 2002
++++ icon.v941src/src/iconc/ccomp.c	Sat Dec 28 14:29:23 2002
+@@ -22,7 +22,7 @@
+ Deliberate Syntax Error
+ #endif						/* PORT */
+ 
+-#if UNIX || AMIGA || MACINTOSH || MSDOS || OS2
++#if UNIX || defined(AMIGA) || MACINTOSH || MSDOS || OS2
+ #define ExeFlag "-o"
+ #define LinkLibs " -lm"
+ #endif						/* UNIX ... */
+@@ -70,7 +70,7 @@
+ Deliberate Syntax Error
+ #endif						/* PORT */
+ 
+-#if UNIX || AMIGA || MACINTOSH || MSDOS || OS2
++#if UNIX || defined(AMIGA) || MACINTOSH || MSDOS || OS2
+    l->libname = libname;
+    l->nm_sz = strlen(libname);
+ #endif						/* UNIX ... */
+@@ -146,7 +146,7 @@
+ Deliberate Syntax Error
+ #endif						/* PORT */
+ 
+-#if AMIGA || MACINTOSH || MSDOS || OS2
++#if defined(AMIGA) || MACINTOSH || MSDOS || OS2
+    /* something may be needed */
+ Deliberate Syntax Error
+ #endif						/* AMIGA || ... */
+--- icon.v941src/src/iconc/cmain.c.orig	Fri Jan 18 23:17:26 2002
++++ icon.v941src/src/iconc/cmain.c	Sat Dec 28 14:29:56 2002
+@@ -278,7 +278,7 @@
+          addlib(argv[optind]);		/* assume linker option */
+ #endif					/* UNIX ... */
+ 
+-#if AMIGA || MACINTOSH || MSDOS || OS2 || VMS
++#if defined(AMIGA) || MACINTOSH || MSDOS || OS2 || VMS
+       /*
+        * Linker options on command line not supported.
+        */
+@@ -316,7 +316,7 @@
+             addlib(argv[optind]);
+ #endif					/* UNIX ... */
+ 
+-#if AMIGA || MACINTOSH || MSDOS || OS2 || VMS
++#if defined(AMIGA) || MACINTOSH || MSDOS || OS2 || VMS
+             /*
+              * Pass no files to the linker.
+              */
+@@ -446,7 +446,7 @@
+ 
+    *p++ = ofile;			/* set executable file */
+ 
+-#if AMIGA && LATTICE
++#if defined(AMIGA) && LATTICE
+    *p = *args;
+    while (*p++) {
+       *p = *args;
+@@ -474,7 +474,7 @@
+ Deliberate Syntax Error
+ #endif					/* PORT */
+ 
+-#if AMIGA
++#if defined(AMIGA)
+ #if AZTEC_C
+       execvp(ofile,argv);
+       return;
+@@ -535,7 +535,7 @@
+ Deliberate Syntax Error
+ #endif					/* PORT */
+ 
+-#if AMIGA || MSDOS || OS2 || UNIX || VMS
++#if defined(AMIGA) || MSDOS || OS2 || UNIX || VMS
+    fprintf(stderr,"%s:\n",s);
+ #endif					/* AMIGA || ... */
+ 
+--- icon.v941src/src/h/config.h.orig	Sat Jan 19 00:42:56 2002
++++ icon.v941src/src/h/config.h	Sat Dec 28 14:31:28 2002
+@@ -47,10 +47,6 @@
+    #define PORT 0
+ #endif					/* PORT */
+ 
+-#ifndef AMIGA
+-   #define AMIGA 0
+-#endif					/* AMIGA */
+-
+ #ifndef ARM
+    #define ARM 0
+ #endif					/* ARM */
+@@ -389,7 +385,7 @@
+    #define LibSuffix ".olb"
+ #endif					/* VMS */
+ 
+-#if AMIGA || ARM || MACINTOSH
++#if defined(AMIGA) || ARM || MACINTOSH
+ #endif					/* AMIGA || ARM || ... */
+ 
+ #if MSDOS || OS2
+--- icon.v941src/src/h/fdefs.h.orig	Sun Jul 30 04:42:32 2000
++++ icon.v941src/src/h/fdefs.h	Sat Dec 28 14:31:46 2002
+@@ -87,7 +87,7 @@
+ FncDefV(write)
+ FncDefV(writes)
+ 
+-#if AMIGA || UNIX || VMS || OS2_32 || NT || SCCX_MX
++#if defined(AMIGA) || UNIX || VMS || OS2_32 || NT || SCCX_MX
+    FncDef(delay,1)
+ #endif					/* AMIGA || UNIX || VMS || OS2_32... */
+ 
+--- icon.v941src/src/h/features.h.orig	Fri Jan 18 23:17:26 2002
++++ icon.v941src/src/h/features.h	Sat Dec 28 14:32:01 2002
+@@ -18,7 +18,7 @@
+ 
+    Feature(1, "_V9", 0)			/* Version 9 (unconditional) */
+ 
+-#if AMIGA
++#if defined(AMIGA)
+    Feature(1, "_AMIGA", "Amiga")
+ #endif					/* AMIGA */
+ 
+--- icon.v941src/src/h/proto.h.orig	Wed Dec 12 19:28:11 2001
++++ icon.v941src/src/h/proto.h	Sat Dec 28 14:32:18 2002
+@@ -11,7 +11,7 @@
+    Deliberate Syntax Error
+ #endif					/* PORT */
+ 
+-#if AMIGA
++#if defined(AMIGA)
+    #if LATTICE
+       #include <dos.h>
+    #endif				/* LATTICE */
+--- icon.v941src/src/h/rmacros.h.orig	Fri Jan 18 23:17:26 2002
++++ icon.v941src/src/h/rmacros.h	Sat Dec 28 14:32:34 2002
+@@ -452,7 +452,7 @@
+       Deliberate Syntax Error
+    #endif				/* PORT */
+ 
+-   #if AMIGA || ARM || MACINTOSH || UNIX || VMS
++   #if defined(AMIGA) || ARM || MACINTOSH || UNIX || VMS
+       #define PushAVal(x) PushVal(x)
+    #endif				/* AMIGA || ARM || ... */
+ 
+--- icon.v941src/src/h/sys.h.orig	Sat Dec 28 13:54:15 2002
++++ icon.v941src/src/h/sys.h	Sat Dec 28 14:32:52 2002
+@@ -21,7 +21,7 @@
+    Deliberate Syntax Error
+ #endif					/* PORT */
+ 
+-#if AMIGA
++#if defined(AMIGA)
+    #include <fcntl.h>
+    #include <ios1.h>
+    #include <libraries/dosextens.h>
+--- icon.v941src/src/common/error.h.orig	Sun Jul 30 04:42:30 2000
++++ icon.v941src/src/common/error.h	Sat Dec 28 14:35:01 2002
+@@ -12,7 +12,7 @@
+ 
+ static	char	*mapterm	(int typ,struct node *val);
+ 
+-#if AMIGA && __SASC
++#if defined(AMIGA) && __SASC
+    extern void PostClip(char *file, int line, int number, char *text);
+ #endif				/* AMIGA && __SASC */
+ 
+@@ -52,7 +52,7 @@
+          fprintf(stderr, "\"%s\": ", mapterm(tok,lval));
+       for (p = errtab; p->e_state != state && p->e_state >= 0; p++) ;
+       fprintf(stderr, "%s\n", p->e_mesg);
+-#if AMIGA && __SASC
++#if defined(AMIGA) && __SASC
+       if (tok_loc.n_file) PostClip(tok_loc.n_file, line, 0, p->e_mesg);
+ #endif				/* AMIGA && __SASC */
+       }
+@@ -116,7 +116,7 @@
+       fprintf(stderr, "\"%s\": ", s2);
+    fprintf(stderr, "%s\n", s1);
+ 
+-#if AMIGA && __SASC
++#if defined(AMIGA) && __SASC
+    if (tok_loc.n_file) {
+       char text[512];
+       if (s2)
+@@ -147,7 +147,7 @@
+       fprintf(stderr, "\"%s\": ", s2);
+    fprintf(stderr, "%s\n", s1);
+ 
+-#if AMIGA && __SASC
++#if defined(AMIGA) && __SASC
+    if (n != NULL) {
+       char text[512];
+       if (s2)
+--- icon.v941src/src/common/filepart.c.orig	Fri Jan 18 23:17:26 2002
++++ icon.v941src/src/common/filepart.c	Sat Dec 28 14:35:15 2002
+@@ -22,7 +22,7 @@
+    Deliberate Syntax Error
+ #endif					/* PORT */
+ 
+-#if AMIGA
++#if defined(AMIGA)
+    #define Prefix "/:"
+    #define FileSep '/'
+ #endif					/* AMIGA */
+--- icon.v941src/src/common/msasc.c.orig	Wed Dec 12 19:28:10 2001
++++ icon.v941src/src/common/msasc.c	Sat Dec 28 14:35:33 2002
+@@ -3,7 +3,7 @@
+ 
+ #include "../h/gsupport.h"
+ 
+-#if AMIGA && __SASC
++#if defined(AMIGA) && __SASC
+ #include <workbench/startup.h>
+ #include <rexx/rxslib.h>
+ #include <proto/dos.h>
+--- icon.v941src/src/common/redirerr.c.orig	Fri Jan 18 23:17:26 2002
++++ icon.v941src/src/common/redirerr.c	Sat Dec 28 14:35:48 2002
+@@ -19,7 +19,7 @@
+    Deliberate Syntax Error
+ #endif					/* PORT */
+ 
+-#if AMIGA
++#if defined(AMIGA)
+    #if AZTEC_C
+        /*
+         * If it doesn't work, try trick used for HIGH_C, below.
