@@ -10,6 +10,7 @@ Release:	1
 License:	Public Domain (see README)
 Group:		Development/Languages
 Source0:	http://www.cs.arizona.edu/icon/ftp/packages/unix/%{name}.v%{sver}src.tgz
+# Source0-md5:	5ab62c32eb0d20fa6ee5840dd88a09f6
 Patch0:		%{name}-system-Xpm.patch
 Patch1:		%{name}-paths.patch
 URL:		http://www.cs.arizona.edu/icon/
