@@ -6,7 +6,7 @@ Summary(pl):	Jêzyk programowania Icon
 Name:		icon
 Version:	9.4.1
 %define	sver	%(echo %{version} | tr -d .)
-Release:	1
+Release:	2
 License:	Public Domain (see README)
 Group:		Development/Languages
 Source0:	http://www.cs.arizona.edu/icon/ftp/packages/unix/%{name}.v%{sver}src.tgz
@@ -41,7 +41,8 @@ poziomie.
 
 %{__make} \
 	CC="%{__cc}" \
-	CFLAGS="%{rpmcflags}"
+	CFLAGS="%{rpmcflags}" \
+	XLIBS="-L/usr/X11R6/%{_lib} -lX11"
 
 %install
 rm -rf $RPM_BUILD_ROOT
