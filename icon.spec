@@ -33,7 +33,7 @@ poziomie.
 
 %prep
 %setup -q -n %{name}.v%{sver}src
-%patch -p1
+%patch0 -p1
 
 %build
 %{__make} %{?with_x:X-}Configure \
