@@ -2,7 +2,7 @@
 %bcond_without	x	# without X11 graphics support
 #
 Summary:	Icon programming language
-Summary(pl):	Jêzyk programowania Icon
+Summary(pl.UTF-8):   JÄ™zyk programowania Icon
 Name:		icon
 Version:	9.4.1
 %define	sver	%(echo %{version} | tr -d .)
@@ -24,11 +24,11 @@ Icon is an imperative, procedural language with a syntax that is
 reminiscent of C and Pascal, but with semantics at a much higher
 level.
 
-%description -l pl
-Icon to jêzyk programowania ogólnego przeznaczenia bardzo wysokiego
-poziomu z du¿ymi mo¿liwo¶ciami przetwarzania ³añcuchów (tekstu) i
-struktur danych. Icon jest imperatywnym, proceduralnym jêzykiem ze
-sk³adni± przypominaj±c± C i Pascala, ale z semantyk± na du¿o wy¿szym
+%description -l pl.UTF-8
+Icon to jÄ™zyk programowania ogÃ³lnego przeznaczenia bardzo wysokiego
+poziomu z duÅ¼ymi moÅ¼liwoÅ›ciami przetwarzania Å‚aÅ„cuchÃ³w (tekstu) i
+struktur danych. Icon jest imperatywnym, proceduralnym jÄ™zykiem ze
+skÅ‚adniÄ… przypominajÄ…cÄ… C i Pascala, ale z semantykÄ… na duÅ¼o wyÅ¼szym
 poziomie.
 
 %prep
