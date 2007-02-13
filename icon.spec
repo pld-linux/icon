@@ -2,7 +2,7 @@
 %bcond_without	x	# without X11 graphics support
 #
 Summary:	Icon programming language
-Summary(pl.UTF-8):   Język programowania Icon
+Summary(pl.UTF-8):	Język programowania Icon
 Name:		icon
 Version:	9.4.1
 %define	sver	%(echo %{version} | tr -d .)
